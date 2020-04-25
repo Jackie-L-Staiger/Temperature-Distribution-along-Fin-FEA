@@ -1,1 +1,30 @@
+Clear["Global'*"]
+
+(* Define Constants *)
+h = 170         (* convective heat transfer coefficient *)
+k = 450         (* thermal conductivity of fin material *)
+Tair = 213      (* ambient air temperature in K *)
+Tbase = 1273    (* temperature at the base of the fin in K *)
+L = 0.2         (* length of fin *)
+pi = 3.14159265358979
+
+(* Exact Solution Using Mathematica: Using W for Temperature *)
+sol = NDSolve[{D[(k*pi*0.25*(-0.095*x+0.02)^2)*W'[x], x] == h*(pi*(-0.095*x+0.02))*(W[x]-Tair), W[0]==Tbase, W'[0.2]==0}, W[x], x]
+exact = Plot[Evaluate[{W[x]}/.sol],{x,0,0.2},PlotLegends->("exact")]
+
+(* Abaqus / CAE : Temperature Distribution along Centerline of Fin *)
+(* these are just several sample points taken from a large number of points *)
+abaqus = ListPlot[{{0,1273},{0.05,1010.93},{0.1,801.3522},{0.15,636.5971},{0.2,526.3822}}, PlotLegends->("abaqus")]
+
+(* Weak Form Galerkin (WFG) and Rayleigh-Ritz (RR) Method *)
+c0 = 1273       (* not a basis function, just satisfies essential boundary condition (EBC) T(0)=1273 *)
+T[x_]=c0 + c1*x + c2*x^2 + c3*x^3
+Pix = Integrate[(k*pi*(-0.095*x+0.02)^2*(T'[x])^2)/8 + 0.5*h*pi*(-0.095*x+0.02)*((T[x])^2-2*T[x]*213), {x,0,0.2}]
+wfsol = Solve[{D[Pix,c1]==0, D[Pix,c2]==0, D[Pix,c3]==0}, {c1,c2,c3}]
+wf = Plot[Evaluate[{T[x]}/.wfsol],{x,0,0.2},PlotLegends->("weak form")]
+
+(* Plot Showing all 3 Temperature Distributions *)
+Show[exact, abaqus, wf]
+
+
 
