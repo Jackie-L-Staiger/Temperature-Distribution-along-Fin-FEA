@@ -18,9 +18,9 @@ abaqus = ListPlot[{{0,1273},{0.05,1010.93},{0.1,801.3522},{0.15,636.5971},{0.2,5
 
 (* Weak Form Galerkin (WFG) and Rayleigh-Ritz (RR) Method *)
 (* Note: RR solution reduces to weak form, so only one is graphed below *)
-c0 = 1273       (* not a basis function, just satisfies essential boundary condition (EBC) T(0)=1273 *)
+c0 = Tbase       (* not a basis function, just satisfies essential boundary condition (EBC) T(0)=1273 *)
 T[x_]=c0 + c1*x + c2*x^2 + c3*x^3
-Pix = Integrate[(k*pi*(-0.095*x+0.02)^2*(T'[x])^2)/8 + 0.5*h*pi*(-0.095*x+0.02)*((T[x])^2-2*T[x]*213), {x,0,0.2}]
+Pix = Integrate[(k*pi*(-0.095*x+0.02)^2*(T'[x])^2)/8 + 0.5*h*pi*(-0.095*x+0.02)*((T[x])^2-2*T[x]*Tair), {x,0,0.2}]
 wfsol = Solve[{D[Pix,c1]==0, D[Pix,c2]==0, D[Pix,c3]==0}, {c1,c2,c3}]
 wf = Plot[Evaluate[{T[x]}/.wfsol],{x,0,0.2},PlotLegends->("weak form")]
 
